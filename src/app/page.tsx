@@ -587,8 +587,7 @@ const AICEditor = ({ onSave, rawInput, setRawInput, category, setCategory }: AIC
 // --- Main App Entry ---
 export default function App() {
   const [drafts, setDrafts] = useState<NewsDraft[]>(() => {
-    const saved = localStorage.getItem("dainik_jahan_drafts");
-    return saved ? JSON.parse(saved) : [
+    const defaultDrafts = [
       {
         id: "demo1",
         title: "ময়মনসিংহ জিলা স্কুলের শতবর্ষী ছাত্রাবাস পুনর্নির্মাণের দাবি",
@@ -608,6 +607,12 @@ export default function App() {
         imageUrl: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&q=80&w=800"
       }
     ];
+
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("dainik_jahan_drafts");
+      return saved ? JSON.parse(saved) : defaultDrafts;
+    }
+    return defaultDrafts;
   });
   
   const [rawInput, setRawInput] = useState("");
