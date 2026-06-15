@@ -1,0 +1,6 @@
+{
+  "name": "Dainik Jahan News Portal",
+  "description": "An automated English news portal styled after The Guardian, fetching and rewriting news from international and local sources using Gemini AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'emailokvai@gmail.com';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Article Validation ---
+    function isValidArticle(data) {
+      return data.title is string && data.title.size() <= 500 &&
+             data.content is string && data.content.size() <= 50000 &&
+             data.source is string && data.source.size() <= 100 &&
+             data.publishedAt is string && // ISO Format
+             (!('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 2048)) &&
+             (!('originalUrl' in data) || (data.originalUrl is string && data.originalUrl.size() <= 2048)) &&
+             (!('isBreaking' in data) || data.isBreaking is bool) &&
+             (data.status in ['draft', 'published']);
+    }
+
+    // --- Rules ---
+
+    match /articles/{articleId} {
+      allow read: if true; // Public News
+      allow create: if isAdmin() && isValidArticle(incoming()) && isValidId(articleId);
+      allow update: if isAdmin() && isValidArticle(incoming()) && (
+        // Prevent immutable field changes if needed, but admin usually has full control
+        incoming().source == existing().source
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /syncState/{stateId} {
+      allow read: if true;
+      allow write: if isAdmin() && incoming().lastSyncAt is string;
+    }
+  }
+}

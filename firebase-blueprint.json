@@ -1,0 +1,41 @@
+{
+  "entities": {
+    "Article": {
+      "title": "News Article",
+      "description": "A news article fetched and rewritten by AI",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "excerpt": { "type": "string" },
+        "category": { "type": "string" },
+        "source": { "type": "string" },
+        "originalUrl": { "type": "string", "format": "uri" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "publishedAt": { "type": "string", "format": "date-time" },
+        "editorialStyle": { "type": "string" },
+        "isBreaking": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["draft", "published"] }
+      },
+      "required": ["title", "content", "publishedAt", "source"]
+    },
+    "SyncState": {
+      "title": "Sync State",
+      "description": "Tracks the last time RSS feeds were synced",
+      "type": "object",
+      "properties": {
+        "lastSyncAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/articles/{articleId}": {
+      "schema": "Article",
+      "description": "Collection of news articles"
+    },
+    "/syncState/main": {
+      "schema": "SyncState",
+      "description": "Global sync state"
+    }
+  }
+}
